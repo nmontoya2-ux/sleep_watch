@@ -1,4 +1,4 @@
-import SleepGraph from '../components/SleepGraph.jsx'
+import SleepScore from '../components/SleepScore.jsx'
 import { formatClock, formatMinutes } from '../utils/sleepUtils'
 
 function History({ historySeries, weeklyOverview }) {
@@ -53,7 +53,7 @@ function History({ historySeries, weeklyOverview }) {
             </span>
           </div>
         </div>
-        <SleepGraph data={historySeries} />
+        <SleepScore data={historySeries} />
       </article>
 
       <article className="panel">

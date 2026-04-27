@@ -5,7 +5,7 @@ function formatDuration(min) {
   return `${h}h ${m}m`
 }
 
-function SleepGraph({ data }) {
+function SleepScore({ data }) {
   // Use a fixed scale (0–10h) so days are comparable
   const SCALE_MAX = 600 // 10h in minutes
   const ticks = [0, 2, 4, 6, 8, 10] // hours
@@ -52,4 +52,4 @@ function SleepGraph({ data }) {
   )
 }
 
-export default SleepGraph
+export default SleepScore
