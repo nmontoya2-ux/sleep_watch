@@ -1,7 +1,7 @@
-import Hypnogram from '../components/Hypnogram'
-import NapBadge from '../components/NapBadge'
-import ScoreRing from '../components/ScoreRing'
-import SleepCard from '../components/SleepCard'
+import Hypnogram from '../components/Hypnogram.jsx'
+import NapBadge from '../components/NapBadge.jsx'
+import ScoreRing from '../components/ScoreRing.jsx'
+import SleepCard from '../components/SleepCard.jsx'
 import {
   formatClock,
   formatMinutes,

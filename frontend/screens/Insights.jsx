@@ -1,4 +1,4 @@
-import Hypnogram from '../components/Hypnogram'
+import Hypnogram from '../components/Hypnogram.jsx'
 import {
   formatMinutes,
   getBiometricTrend,

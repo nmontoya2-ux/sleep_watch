@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import './App.css'
 import { sleepDays } from '../data/mockSleepData'
-import Home from '../screens/Home'
-import History from '../screens/History'
-import Insights from '../screens/Insights'
+import Home from '../screens/Home.jsx'
+import History from '../screens/History.jsx'
+import Insights from '../screens/Insights.jsx'
 import {
   getAverageScore,
   getHistorySeries,

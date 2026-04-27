@@ -1,5 +1,5 @@
-import NapBadge from '../components/NapBadge'
-import SleepGraph from '../components/SleepGraph'
+import NapBadge from '../components/NapBadge.jsx'
+import SleepGraph from '../components/SleepGraph.jsx'
 import { formatClock, formatMinutes } from '../utils/sleepUtils'
 
 function History({ historySeries, weeklyOverview }) {
