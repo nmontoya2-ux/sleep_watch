@@ -1,7 +1,16 @@
 function NapBadge({ minutes }) {
+  if (!minutes) {
+    return (
+      <span className="tag">
+        <i />
+        No naps logged
+      </span>
+    )
+  }
   return (
-    <span className="nap-badge">
-      {minutes > 0 ? `${minutes} min naps included` : 'No naps logged'}
+    <span className="tag tag-accent">
+      <i />
+      Includes {minutes} min nap
     </span>
   )
 }
