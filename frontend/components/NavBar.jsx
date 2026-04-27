@@ -1,4 +1,4 @@
-function SleepCard({ title, value, detail, color }) {
+function NavBar({ title, value, detail, color }) {
   return (
     <article className="metric-card">
       <p className="metric-card-label">
@@ -11,4 +11,4 @@ function SleepCard({ title, value, detail, color }) {
   )
 }
 
-export default SleepCard
+export default NavBar

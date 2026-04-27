@@ -1,7 +1,7 @@
 import Hypnogram from '../components/Hypnogram.jsx'
 import AIInsights from '../components/AIInsights.jsx'
 import NapTracker from '../components/NapTracker.jsx'
-import SleepCard from '../components/SleepCard.jsx'
+import NavBar from '../components/NavBar.jsx'
 import {
   formatClock,
   formatMinutes,
@@ -64,25 +64,25 @@ function Home({ today, stageTotals }) {
 
       {/* Key metrics */}
       <div className="metric-grid">
-        <SleepCard
+        <NavBar
           title="Main sleep"
           value={formatMinutes(mainSleep)}
           detail="Overnight session"
           color={stagePalette.light}
         />
-        <SleepCard
+        <NavBar
           title="Naps"
           value={napMinutes ? formatMinutes(napMinutes) : '0m'}
           detail={napMinutes ? 'Counted toward total' : 'None today'}
           color={stagePalette.nap}
         />
-        <SleepCard
+        <NavBar
           title="Efficiency"
           value={`${efficiency}%`}
           detail="Asleep vs in-bed"
           color={stagePalette.rem}
         />
-        <SleepCard
+        <NavBar
           title="Readiness"
           value={sleepScore >= 80 ? 'Ready' : sleepScore >= 65 ? 'Moderate' : 'Low'}
           detail="Today's recovery state"
