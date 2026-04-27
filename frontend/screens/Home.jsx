@@ -8,78 +8,138 @@ import {
   getNapMinutes,
   getSleepScore,
   getTotalSleepMinutes,
+  stagePalette,
 } from '../utils/sleepUtils'
 
 function Home({ today, stageTotals }) {
   const totalSleep = getTotalSleepMinutes(today)
   const sleepScore = getSleepScore(today)
   const napMinutes = getNapMinutes(today)
-  const awakeMinutes = stageTotals.find((stage) => stage.stage === 'awake')?.minutes ?? 0
-  const remMinutes = stageTotals.find((stage) => stage.stage === 'rem')?.minutes ?? 0
-  const deepMinutes = stageTotals.find((stage) => stage.stage === 'deep')?.minutes ?? 0
+  const awakeMinutes = stageTotals.find((s) => s.stage === 'awake')?.minutes ?? 0
+  const remMinutes = stageTotals.find((s) => s.stage === 'rem')?.minutes ?? 0
+  const deepMinutes = stageTotals.find((s) => s.stage === 'deep')?.minutes ?? 0
+  const mainSleep = totalSleep - napMinutes
+  const efficiency = Math.round(
+    (totalSleep / Math.max(totalSleep + awakeMinutes, 1)) * 100,
+  )
 
   return (
-    <section className="screen screen-home">
-      <div className="hero-panel">
-        <div className="hero-copy">
-          <p className="section-label">Today overview</p>
-          <h2>{formatMinutes(totalSleep)} total sleep with naps included.</h2>
-          <p className="section-copy">
-            Main sleep ran from {formatClock(today.bedtime)} to {formatClock(today.wakeTime)}.
-            Your recovery stayed steady and the daytime nap meaningfully supported total rest.
+    <section className="screen">
+      {/* Hero: total sleep + score */}
+      <div className="hero">
+        <div className="hero-main">
+          <div className="hero-eyebrow">
+            <span className="hero-dot" />
+            Today's sleep
+          </div>
+          <h2 className="hero-total">
+            {formatMinutes(totalSleep)}
+            <small>total</small>
+          </h2>
+          <p className="hero-window">
+            Main sleep <strong>{formatClock(today.bedtime)}</strong> – <strong>{formatClock(today.wakeTime)}</strong>
+            {napMinutes > 0 && <> · plus a {napMinutes}-min nap</>}
           </p>
-          <NapBadge minutes={napMinutes} />
+          <div className="hero-tags">
+            <span className="tag">
+              <i style={{ color: stagePalette.deep }} />
+              {formatMinutes(deepMinutes)} deep
+            </span>
+            <span className="tag">
+              <i style={{ color: stagePalette.rem }} />
+              {formatMinutes(remMinutes)} REM
+            </span>
+            <span className="tag">
+              <i style={{ color: stagePalette.awake }} />
+              {formatMinutes(awakeMinutes)} awake
+            </span>
+            <NapBadge minutes={napMinutes} />
+          </div>
         </div>
-        <ScoreRing score={sleepScore} label="Sleep score" />
+
+        <div className="hero-score">
+          <ScoreRing score={sleepScore} label="Sleep score" />
+        </div>
       </div>
 
-      <div className="metrics-grid">
-        <SleepCard title="Deep sleep" value={formatMinutes(deepMinutes)} detail="Restoration and physical recovery" />
-        <SleepCard title="REM sleep" value={formatMinutes(remMinutes)} detail="Memory, mood, and learning support" />
-        <SleepCard title="Awake time" value={formatMinutes(awakeMinutes)} detail="Short interruptions kept quality intact" tone="warning" />
-        <SleepCard title="Readiness" value="Ready" detail="Good baseline for focus and training today" tone="success" />
+      {/* Key metrics */}
+      <div className="metric-grid">
+        <SleepCard
+          title="Main sleep"
+          value={formatMinutes(mainSleep)}
+          detail="Overnight session"
+          color={stagePalette.light}
+        />
+        <SleepCard
+          title="Naps"
+          value={napMinutes ? formatMinutes(napMinutes) : '0m'}
+          detail={napMinutes ? 'Counted toward total' : 'None today'}
+          color={stagePalette.nap}
+        />
+        <SleepCard
+          title="Efficiency"
+          value={`${efficiency}%`}
+          detail="Asleep vs in-bed"
+          color={stagePalette.rem}
+        />
+        <SleepCard
+          title="Readiness"
+          value={sleepScore >= 80 ? 'Ready' : sleepScore >= 65 ? 'Moderate' : 'Low'}
+          detail="Today's recovery state"
+          color="#22c55e"
+        />
       </div>
 
+      {/* Hypnogram + summary */}
       <div className="layout-two">
-        <article className="panel panel-elevated">
+        <article className="panel">
           <div className="panel-head">
             <div>
-              <p className="section-label">Quick hypnogram</p>
-              <h3>Sleep stages across all sessions</h3>
+              <p className="section-label">Hypnogram</p>
+              <h3 className="panel-title">Sleep stages across all sessions</h3>
+              <p className="panel-subtitle">
+                Includes overnight sleep and any naps in chronological order.
+              </p>
             </div>
           </div>
           <Hypnogram day={today} compact />
         </article>
 
-        <article className="panel panel-summary">
-          <p className="section-label">Today summary</p>
-          <h3>Recovery is solid, with one clear improvement area.</h3>
-          <p>{today.readiness}</p>
-          <div className="summary-callout">
-            <span>Improvement</span>
-            <strong>{today.improvement}</strong>
+        <article className="summary-card">
+          <p className="section-label">Summary</p>
+          <h3 className="panel-title">How you slept</h3>
+          <p className="summary-readiness">{today.readiness}</p>
+
+          <div className="summary-improve">
+            <span>Improve next</span>
+            <p>{today.improvement}</p>
           </div>
         </article>
       </div>
 
+      {/* Stage contribution */}
       <article className="panel">
         <div className="panel-head">
           <div>
             <p className="section-label">Key metrics</p>
-            <h3>Stage contribution to total recovery</h3>
+            <h3 className="panel-title">Stage contribution</h3>
+            <p className="panel-subtitle">Time spent in each stage today.</p>
           </div>
         </div>
         <div className="stage-list">
           {stageTotals.map((stage) => (
             <div key={stage.stage} className="stage-row">
               <div className="stage-title">
-                <i style={{ backgroundColor: stage.color }} />
+                <i style={{ background: stage.color }} />
                 <span>{stage.label}</span>
               </div>
               <div className="stage-bar">
-                <div style={{ width: `${stage.value}%`, backgroundColor: stage.color }} />
+                <div style={{ width: `${stage.value}%`, background: stage.color }} />
               </div>
-              <strong>{formatMinutes(stage.minutes)}</strong>
+              <strong className="stage-amount">
+                {formatMinutes(stage.minutes)}
+                <small>{stage.value}%</small>
+              </strong>
             </div>
           ))}
         </div>
