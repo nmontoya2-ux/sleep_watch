@@ -1,193 +1,289 @@
-import Hypnogram from '../components/Hypnogram.jsx'
-import {
-  formatMinutes,
-  getNapMinutes,
-  stagePalette,
-} from '../utils/sleepUtils'
+import StageBreakdown from '../components/StageBreakdown'
+import AIInsights     from '../components/AIInsights'
+import { tonightSleep, weekHistory, sleepFacts } from '../data/mockData'
 
-/* ---------- SVG donut ---------- */
-function Donut({ stageTotals }) {
-  const RADIUS = 70
-  const STROKE = 18
-  const C = 2 * Math.PI * RADIUS
-  const total = stageTotals.reduce((s, x) => s + x.minutes, 0) || 1
-
-  let cumulative = 0
-  const deepRemPct = stageTotals
-    .filter((s) => s.stage === 'deep' || s.stage === 'rem')
-    .reduce((sum, s) => sum + s.value, 0)
-
-  return (
-    <svg className="donut-svg" viewBox="0 0 200 200" role="img" aria-label="Stage breakdown">
-      <circle className="donut-track" cx="100" cy="100" r={RADIUS} />
-      {stageTotals.map((s) => {
-        const fraction = s.minutes / total
-        const length = fraction * C
-        const offset = -cumulative
-        cumulative += length
-        return (
-          <circle
-            key={s.stage}
-            className="donut-segment"
-            cx="100"
-            cy="100"
-            r={RADIUS}
-            stroke={s.color}
-            strokeDasharray={`${length} ${C - length}`}
-            strokeDashoffset={offset}
-            transform="rotate(-90 100 100)"
-          />
-        )
-      })}
-      <text className="donut-center" x="100" y="98">{deepRemPct}%</text>
-      <text className="donut-center-small" x="100" y="118">deep + REM</text>
-    </svg>
-  )
+function formatDur(min) {
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  return `${h}h ${m > 0 ? m + 'm' : ''}`
 }
 
-/* ---------- Trend line chart with area fill ---------- */
-function TrendChart({ values, label, unit, color = 'var(--accent)', areaClass = 'trend-area', lineClass = 'trend-line' }) {
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const range = max - min || 1
-  const padTop = 8
-  const padBottom = 8
-  const W = 100
-  const H = 100
+// Weekly trend sparkline
+function ScoreTrend({ data }) {
+  const W = 280
+  const H = 52
+  const PAD = 10
+  const chartW = W - PAD * 2
+  const chartH = H - PAD * 2
+  const maxScore = 100
+  const minScore = 50
 
-  const points = values.map((v, i) => {
-    const x = (i / (values.length - 1)) * W
-    const y = padTop + (1 - (v - min) / range) * (H - padTop - padBottom)
-    return [x, y]
-  })
+  function xOf(i)  { return PAD + (i / (data.length - 1)) * chartW }
+  function yOf(s)  { return PAD + (1 - (s - minScore) / (maxScore - minScore)) * chartH }
 
-  const linePath = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ')
-  const areaPath = `${linePath} L${W},${H} L0,${H} Z`
+  const points = data.map((d, i) => ({ x: xOf(i), y: yOf(d.score), ...d }))
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${H} L ${points[0].x} ${H} Z`
 
-  return (
-    <div className="trend-chart">
-      <div className="trend-chart-head">
-        <span>{label}</span>
-        <strong>{min.toFixed(values.some(v => !Number.isInteger(v)) ? 1 : 0)}–{max.toFixed(values.some(v => !Number.isInteger(v)) ? 1 : 0)} {unit}</strong>
-      </div>
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
-        <path className={areaClass} d={areaPath} style={{ fill: color }} />
-        <path className={lineClass} d={linePath} style={{ stroke: color }} />
-      </svg>
-    </div>
-  )
-}
-
-function Insights({ today, stageTotals }) {
-  const napMinutes = getNapMinutes(today)
+  const avg = Math.round(data.reduce((s, d) => s + d.score, 0) / data.length)
 
   return (
-    <section className="screen">
-      <article className="panel">
-        <div className="panel-head">
-          <div>
-            <p className="section-label">Full hypnogram</p>
-            <h2 className="panel-title" style={{ fontSize: '1.3rem' }}>
-              Stage transitions across all sessions
-            </h2>
-            <p className="panel-subtitle">
-              {today.sessions.length} session{today.sessions.length > 1 ? 's' : ''} ·
-              {' '}
-              {formatMinutes(today.sessions.reduce((s, x) => s + x.stages.reduce((a, b) => a + b.minutes, 0), 0))} total
-            </p>
-          </div>
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-2)', fontWeight: 500 }}>7-day average</p>
+          <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-2)', letterSpacing: '-0.02em' }}>
+            {avg} <span style={{ fontSize: '0.7rem', color: 'var(--text-3)', fontWeight: 500 }}>/ 100</span>
+          </p>
         </div>
-        <Hypnogram day={today} />
-      </article>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', overflow: 'visible' }}>
+          {/* Area fill */}
+          <defs>
+            <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#7c6ff7" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#7c6ff7" stopOpacity="0"    />
+            </linearGradient>
+          </defs>
+          <path d={areaPath} fill="url(#scoreGrad)" />
+          {/* Line */}
+          <path d={linePath} fill="none" stroke="#7c6ff7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Dots */}
+          {points.map((p, i) => (
+              <g key={i}>
+                <circle cx={p.x} cy={p.y} r={3.5} fill="#1f2233" stroke="#7c6ff7" strokeWidth="1.5" />
+                <text
+                    x={p.x}
+                    y={H}
+                    textAnchor="middle"
+                    style={{ fontSize: 8, fill: 'var(--text-3)', fontFamily: 'Inter, sans-serif' }}
+                >
+                  {p.dayLabel}
+                </text>
+                <text
+                    x={p.x}
+                    y={p.y - 7}
+                    textAnchor="middle"
+                    style={{ fontSize: 8, fill: 'var(--text-2)', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}
+                >
+                  {p.score}
+                </text>
+              </g>
+          ))}
+        </svg>
+      </div>
+  )
+}
 
-      <div className="layout-two layout-two-equal">
-        <article className="panel">
-          <div className="panel-head">
-            <div>
-              <p className="section-label">Stage breakdown</p>
-              <h3 className="panel-title">Distribution of sleep</h3>
-            </div>
-          </div>
-          <div className="donut-wrap">
-            <Donut stageTotals={stageTotals} />
-            <div className="stage-list">
-              {stageTotals.map((stage) => (
-                <div key={stage.stage} className="stage-row" style={{ gridTemplateColumns: '110px 1fr auto' }}>
-                  <div className="stage-title">
-                    <i style={{ background: stage.color }} />
-                    <span>{stage.label}</span>
-                  </div>
-                  <div className="stage-bar">
-                    <div style={{ width: `${stage.value}%`, background: stage.color }} />
-                  </div>
-                  <strong className="stage-amount">{stage.value}%</strong>
+// Sleep duration bar chart
+function DurationBars({ data }) {
+  const maxMin = Math.max(...data.map((d) => d.totalMin + d.napsMin))
+  return (
+      <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', height: 70 }}>
+        {data.map((d, i) => {
+          const nightH = ((d.totalMin / maxMin) * 54)
+          const napH   = ((d.napsMin / maxMin) * 54)
+          const isToday = i === data.length - 1
+          return (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                  {napH > 0 && (
+                      <div style={{
+                        width: '70%',
+                        height: napH,
+                        background: 'var(--core)',
+                        opacity: 0.6,
+                        borderRadius: '3px 3px 0 0',
+                      }} />
+                  )}
+                  <div style={{
+                    width: '70%',
+                    height: nightH,
+                    background: isToday
+                        ? 'linear-gradient(180deg, #9b8fff, #7c6ff7)'
+                        : 'rgba(124,111,247,0.35)',
+                    borderRadius: napH > 0 ? '0 0 3px 3px' : 3,
+                    boxShadow: isToday ? '0 0 10px rgba(124,111,247,0.4)' : 'none',
+                  }} />
                 </div>
-              ))}
-            </div>
-          </div>
-        </article>
-
-        <article className="panel">
-          <div className="panel-head">
-            <div>
-              <p className="section-label">Biometric trends</p>
-              <h3 className="panel-title">Overnight heart and breathing</h3>
-            </div>
-          </div>
-          <div className="trend-stack">
-            <TrendChart
-              values={today.heartRate}
-              label="Heart rate"
-              unit="bpm"
-              color="var(--accent)"
-            />
-            <TrendChart
-              values={today.breathingRate}
-              label="Breathing rate"
-              unit="brpm"
-              color="var(--stage-rem)"
-            />
-          </div>
-        </article>
+                <p style={{
+                  fontSize: '0.6rem',
+                  color: isToday ? 'var(--accent-2)' : 'var(--text-3)',
+                  fontWeight: isToday ? 700 : 400,
+                }}>
+                  {d.dayLabel}
+                </p>
+              </div>
+          )
+        })}
       </div>
-
-      <article className="panel">
-        <div className="panel-head">
-          <div>
-            <p className="section-label">AI-style tips</p>
-            <h3 className="panel-title">Where to focus next</h3>
-            <p className="panel-subtitle">
-              Personalized suggestions based on tonight's stage data and biometrics.
-            </p>
-          </div>
-        </div>
-        <div className="tips-list">
-          <div className="tip">
-            <span className="tip-bullet" />
-            <span>
-              Protect the final third of the night — your strongest opportunity is preserving
-              uninterrupted REM near morning. Consider an earlier caffeine cutoff and a cooler
-              sleep environment to reduce wake bursts.
-            </span>
-          </div>
-          <div className="tip">
-            <span className="tip-bullet" />
-            <span>
-              Keep naps under 30 minutes. Today's nap added <strong>{formatMinutes(napMinutes)}</strong> of recovery
-              without disrupting overnight sleep pressure.
-            </span>
-          </div>
-          <div className="tip">
-            <span className="tip-bullet" />
-            <span>
-              Aim for another 20–30 minutes of main sleep on shorter nights. Extending main sleep
-              raises deep-sleep yield more reliably than relying on naps to close the gap.
-            </span>
-          </div>
-        </div>
-      </article>
-    </section>
   )
 }
 
-export default Insights
+// Education card
+function FactCard({ fact }) {
+  return (
+      <div style={{
+        ...styles.factCard,
+        borderLeft: `3px solid ${fact.color}`,
+        background: `linear-gradient(135deg, ${fact.color}08, transparent)`,
+      }}>
+        <span style={{ fontSize: '1.3rem' }}>{fact.icon}</span>
+        <div>
+          <p style={styles.factTitle}>{fact.title}</p>
+          <p style={styles.factBody}>{fact.body}</p>
+        </div>
+      </div>
+  )
+}
+
+export default function Insights() {
+  const stageMinutes = tonightSleep.stageMinutes
+
+  return (
+      <div style={styles.page}>
+        <div style={styles.header} className="fade-up">
+          <h2>Sleep Insights</h2>
+          <p style={styles.sub}>Based on your last 7 nights</p>
+        </div>
+
+        {/* Weekly score trend */}
+        <div className="card fade-up-1" style={{ marginBottom: 14 }}>
+          <div className="section-header">
+            <h3>Sleep Score Trend</h3>
+          </div>
+          <ScoreTrend data={weekHistory} />
+        </div>
+
+        {/* Duration breakdown */}
+        <div className="card fade-up-2" style={{ marginBottom: 14 }}>
+          <div className="section-header">
+            <h3>Duration · This Week</h3>
+            <div style={styles.legend}>
+              <span style={{ ...styles.legDot, background: 'var(--accent)' }} /> Night
+              <span style={{ ...styles.legDot, background: 'var(--core)', marginLeft: 8 }} /> Nap
+            </div>
+          </div>
+          <DurationBars data={weekHistory} />
+          <div style={styles.avgRow}>
+            <span style={styles.avgLbl}>Avg nightly</span>
+            <span style={styles.avgVal}>
+            {formatDur(Math.round(weekHistory.reduce((s, d) => s + d.totalMin, 0) / weekHistory.length))}
+          </span>
+            <span style={{ ...styles.avgLbl, marginLeft: 14 }}>With naps</span>
+            <span style={{ ...styles.avgVal, color: 'var(--core)' }}>
+            {formatDur(Math.round(weekHistory.reduce((s, d) => s + d.totalMin + d.napsMin, 0) / weekHistory.length))}
+          </span>
+          </div>
+        </div>
+
+        {/* Stage breakdown */}
+        <div className="card fade-up-3" style={{ marginBottom: 14 }}>
+          <div className="section-header">
+            <h3>Last Night's Stages</h3>
+          </div>
+          <StageBreakdown stageMinutes={stageMinutes} />
+        </div>
+
+        {/* Recovery metrics */}
+        <div className="card fade-up-4" style={{ marginBottom: 14 }}>
+          <div className="section-header">
+            <h3>Recovery Metrics</h3>
+          </div>
+          <div style={styles.metrics}>
+            {[
+              { label: 'Sleep efficiency', value: tonightSleep.efficiency, unit: '%', goal: 85, color: 'var(--accent)' },
+              { label: 'Deep sleep',       value: Math.round((stageMinutes.deep / tonightSleep.totalMinutes) * 100), unit: '%', goal: 18, color: 'var(--deep)' },
+              { label: 'REM sleep',        value: Math.round((stageMinutes.rem  / tonightSleep.totalMinutes) * 100), unit: '%', goal: 22, color: 'var(--rem)'  },
+            ].map((m) => {
+              const pct = Math.min((m.value / m.goal) * 100, 100)
+              const ok  = m.value >= m.goal
+              return (
+                  <div key={m.label} style={styles.metricRow}>
+                    <div style={styles.metricTop}>
+                      <span style={styles.metricLabel}>{m.label}</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: ok ? '#4ade80' : 'var(--amber)' }}>
+                    {m.value}{m.unit}
+                  </span>
+                    </div>
+                    <div className="progress-track">
+                      <div
+                          className="progress-fill"
+                          style={{ width: `${pct}%`, background: m.color }}
+                      />
+                    </div>
+                    <p style={{ fontSize: '0.62rem', color: 'var(--text-3)', marginTop: 3 }}>
+                      {ok ? '✓ Above goal' : `Goal: ${m.goal}${m.unit}`}
+                    </p>
+                  </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Sleep education */}
+        <div className="fade-up-5" style={{ marginBottom: 14 }}>
+          <div className="section-header">
+            <h3>Learn: Sleep Science</h3>
+          </div>
+          <div style={styles.factList}>
+            {sleepFacts.map((f) => <FactCard key={f.id} fact={f} />)}
+          </div>
+        </div>
+
+        {/* Full AI insights */}
+        <div style={{ marginBottom: 14 }}>
+          <div className="section-header">
+            <h3>All AI Suggestions</h3>
+          </div>
+          <AIInsights />
+        </div>
+      </div>
+  )
+}
+
+const styles = {
+  page: { padding: '20px 16px 0' },
+  header: { marginBottom: 18 },
+  sub: { fontSize: '0.78rem', color: 'var(--text-3)', marginTop: 2 },
+  legend: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '0.65rem',
+    color: 'var(--text-3)',
+  },
+  legDot: {
+    display: 'inline-block',
+    width: 7,
+    height: 7,
+    borderRadius: '50%',
+    marginRight: 4,
+  },
+  avgRow: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 6,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTop: '1px solid var(--border)',
+  },
+  avgLbl: { fontSize: '0.68rem', color: 'var(--text-3)', fontWeight: 500 },
+  avgVal: { fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)' },
+  metrics: { display: 'flex', flexDirection: 'column', gap: 14 },
+  metricRow: {},
+  metricTop: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  metricLabel: { fontSize: '0.78rem', color: 'var(--text-2)', fontWeight: 500 },
+  factList: { display: 'flex', flexDirection: 'column', gap: 10 },
+  factCard: {
+    display: 'flex',
+    gap: 12,
+    padding: '13px',
+    borderRadius: 12,
+    border: '1px solid var(--border)',
+    alignItems: 'flex-start',
+  },
+  factTitle: { fontSize: '0.82rem', fontWeight: 600, color: 'var(--text)', marginBottom: 4 },
+  factBody: { fontSize: '0.73rem', color: 'var(--text-2)', lineHeight: 1.55 },
+}
