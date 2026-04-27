@@ -1,12 +1,5 @@
 const stageOrder = ['awake', 'light', 'deep', 'rem']
 
-const stageLevels = {
-  awake: 0,
-  rem: 1,
-  light: 2,
-  deep: 3,
-}
-
 export const stagePalette = {
   awake: '#f29b6c',
   light: '#8aa4ff',
@@ -165,27 +158,6 @@ export function flattenStages(day) {
       id: `${session.id}-${index}`,
     })),
   )
-}
-
-export function getHypnogramPath(day) {
-  const segments = flattenStages(day)
-  const totalMinutes = segments.reduce((sum, segment) => sum + segment.minutes, 0)
-  let cursor = 0
-
-  const points = segments.flatMap((segment, index) => {
-    const startX = (cursor / totalMinutes) * 100
-    const y = stageLevels[segment.stage]
-    cursor += segment.minutes
-    const endX = (cursor / totalMinutes) * 100
-
-    if (index === 0) {
-      return [`${startX},${y}`, `${endX},${y}`]
-    }
-
-    return [`${startX},${y}`, `${endX},${y}`]
-  })
-
-  return points.join(' ')
 }
 
 export function getBiometricTrend(day, key) {
