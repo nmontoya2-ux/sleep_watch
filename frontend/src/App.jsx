@@ -10,6 +10,7 @@ import {
   getStageMinutesForDay,
   getTodayData,
   getWeeklyOverview,
+  formatMinutes,
 } from '../utils/sleepUtils'
 
 const tabs = [
@@ -17,6 +18,14 @@ const tabs = [
   { id: 'history', label: 'History' },
   { id: 'insights', label: 'Insights' },
 ]
+
+function todayLabel(dateStr) {
+  return new Date(`${dateStr}T12:00:00`).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+  })
+}
 
 function App() {
   const [activeTab, setActiveTab] = useState('today')
@@ -38,13 +47,17 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div>
-          <p className="eyebrow">Sleep Watch</p>
-          <h1>Understand how you slept and what to improve next.</h1>
+        <div className="brand">
+          <div className="brand-mark" aria-hidden="true">SW</div>
+          <div className="brand-text">
+            <strong>Sleep Watch</strong>
+            <span>{todayLabel(today.date)}</span>
+          </div>
         </div>
-        <div className="topbar-summary">
-          <span>7 day average score</span>
-          <strong>{averageScore}</strong>
+        <div className="topbar-meta">
+          <span>7-day avg score <strong>{averageScore}</strong></span>
+          <span className="topbar-meta-sep" />
+          <span>Weekly avg <strong>{formatMinutes(weeklyOverview.averageSleep)}</strong></span>
         </div>
       </header>
 
@@ -61,7 +74,7 @@ function App() {
         ))}
       </nav>
 
-      <main className="screen-frame">
+      <main>
         {activeTab === 'today' && <Home {...screenProps} />}
         {activeTab === 'history' && <History {...screenProps} />}
         {activeTab === 'insights' && <Insights {...screenProps} />}
