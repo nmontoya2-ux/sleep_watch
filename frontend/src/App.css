@@ -423,11 +423,13 @@
 .hypnogram-canvas {
   width: 100%;
   display: block;
-  height: 220px;
+  height: auto;
+  aspect-ratio: 1000 / 200;
+  max-height: 240px;
 }
 
 .hypnogram-compact .hypnogram-canvas {
-  height: 150px;
+  max-height: 170px;
 }
 
 .hypno-grid line {

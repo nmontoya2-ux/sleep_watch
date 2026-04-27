@@ -91,7 +91,7 @@ function Hypnogram({ day, compact = false }) {
       <svg
         className="hypnogram-canvas"
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-        preserveAspectRatio="none"
+        preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label="Sleep stages over time"
       >
