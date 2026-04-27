@@ -1,258 +1,161 @@
-export const sleepDays = [
+// ─── Tonight's sleep session ──────────────────────────────────────────────────
+// Stages: 0 = Wake, 1 = Light, 2 = Core, 3 = Deep, 4 = REM
+// start = minutes after bedtime (10:45 PM)
+export const tonightSleep = {
+  date: '2026-04-27',
+  bedtime: '10:45 PM',
+  wakeTime: '6:32 AM',
+  totalMinutes: 467,
+  score: 84,
+  efficiency: 91, // %
+  stages: [
+    { start: 0,   duration: 8,  stage: 1 }, // Light
+    { start: 8,   duration: 22, stage: 2 }, // Core
+    { start: 30,  duration: 38, stage: 3 }, // Deep
+    { start: 68,  duration: 18, stage: 2 }, // Core
+    { start: 86,  duration: 22, stage: 4 }, // REM
+    { start: 108, duration: 12, stage: 2 }, // Core
+    { start: 120, duration: 6,  stage: 0 }, // Wake
+    { start: 126, duration: 28, stage: 2 }, // Core
+    { start: 154, duration: 30, stage: 3 }, // Deep
+    { start: 184, duration: 14, stage: 2 }, // Core
+    { start: 198, duration: 35, stage: 4 }, // REM
+    { start: 233, duration: 10, stage: 1 }, // Light
+    { start: 243, duration: 22, stage: 2 }, // Core
+    { start: 265, duration: 18, stage: 3 }, // Deep
+    { start: 283, duration: 38, stage: 4 }, // REM
+    { start: 321, duration: 16, stage: 2 }, // Core
+    { start: 337, duration: 42, stage: 4 }, // REM
+    { start: 379, duration: 18, stage: 1 }, // Light
+    { start: 397, duration: 20, stage: 2 }, // Core
+    { start: 417, duration: 5,  stage: 0 }, // Wake
+    { start: 422, duration: 25, stage: 1 }, // Light
+    { start: 447, duration: 20, stage: 0 }, // Wake (final wakeup)
+  ],
+  stageMinutes: {
+    wake:  31,
+    light: 51,
+    core: 132,
+    deep:  86,
+    rem:  137,
+  },
+}
+
+// ─── Today's naps ──────────────────────────────────────────────────────────────
+export const todayNaps = [
   {
-    date: '2026-04-27',
-    bedtime: '22:48',
-    wakeTime: '07:04',
-    readiness: 'Strong morning readiness with just a small sleep debt from late afternoon stimulation.',
-    improvement: 'Aim to stop caffeine by 2 PM to reduce the 5:10 AM wake-up spike.',
-    heartRate: [62, 60, 58, 56, 55, 54, 55, 57],
-    breathingRate: [15.2, 14.9, 14.6, 14.3, 14.1, 14.2, 14.4, 14.8],
-    sessions: [
-      {
-        id: 'main-0427',
-        label: 'Main sleep',
-        type: 'main',
-        start: '22:48',
-        end: '07:04',
-        stages: [
-          { stage: 'light', minutes: 36 },
-          { stage: 'deep', minutes: 58 },
-          { stage: 'light', minutes: 64 },
-          { stage: 'rem', minutes: 32 },
-          { stage: 'light', minutes: 46 },
-          { stage: 'awake', minutes: 10 },
-          { stage: 'deep', minutes: 44 },
-          { stage: 'light', minutes: 60 },
-          { stage: 'rem', minutes: 42 },
-          { stage: 'light', minutes: 54 },
-          { stage: 'awake', minutes: 8 },
-          { stage: 'rem', minutes: 42 },
-        ],
-      },
-      {
-        id: 'nap-0427',
-        label: 'Lunch nap',
-        type: 'nap',
-        start: '13:18',
-        end: '13:46',
-        stages: [
-          { stage: 'light', minutes: 14 },
-          { stage: 'rem', minutes: 10 },
-          { stage: 'awake', minutes: 4 },
-        ],
-      },
+    id: 'nap-1',
+    label: 'Afternoon Nap',
+    startTime: '1:15 PM',
+    endTime: '1:47 PM',
+    durationMinutes: 32,
+    stages: [
+      { start: 0,  duration: 5,  stage: 1 },
+      { start: 5,  duration: 18, stage: 2 },
+      { start: 23, duration: 9,  stage: 0 },
     ],
+    quality: 'good', // good | light | deep
+    note: 'Post-lunch recharge',
+  },
+]
+
+// ─── Weekly history ────────────────────────────────────────────────────────────
+export const weekHistory = [
+  { date: 'Apr 21', dayLabel: 'Mon', score: 76, totalMin: 422, napsMin: 0,  deep: 68,  rem: 112 },
+  { date: 'Apr 22', dayLabel: 'Tue', score: 81, totalMin: 448, napsMin: 0,  deep: 80,  rem: 125 },
+  { date: 'Apr 23', dayLabel: 'Wed', score: 70, totalMin: 390, napsMin: 25, deep: 55,  rem: 98  },
+  { date: 'Apr 24', dayLabel: 'Thu', score: 88, totalMin: 475, napsMin: 0,  deep: 98,  rem: 148 },
+  { date: 'Apr 25', dayLabel: 'Fri', score: 65, totalMin: 355, napsMin: 40, deep: 42,  rem: 88  },
+  { date: 'Apr 26', dayLabel: 'Sat', score: 79, totalMin: 510, napsMin: 0,  deep: 88,  rem: 130 },
+  { date: 'Apr 27', dayLabel: 'Sun', score: 84, totalMin: 467, napsMin: 32, deep: 86,  rem: 137 },
+]
+
+// ─── Stage metadata ────────────────────────────────────────────────────────────
+export const stageConfig = {
+  0: { label: 'Wake',  color: '#ff6b6b', shortColor: '#ff4444' },
+  1: { label: 'Light', color: '#ffd166', shortColor: '#ffb703' },
+  2: { label: 'Core',  color: '#4cc9f0', shortColor: '#0095b6' },
+  3: { label: 'Deep',  color: '#4361ee', shortColor: '#3a0ca3' },
+  4: { label: 'REM',   color: '#9b5de5', shortColor: '#7209b7' },
+}
+
+// ─── AI suggestions ────────────────────────────────────────────────────────────
+export const aiSuggestions = [
+  {
+    id: 1,
+    icon: '🌙',
+    category: 'Consistency',
+    title: 'Shift bedtime 15 min earlier',
+    body: 'Your sleep onset averages 11:02 PM. Moving to 10:45 PM consistently could add ~18 min of deep sleep per night based on your cycle patterns.',
+    impact: 'high',
+    tag: 'Bedtime',
   },
   {
-    date: '2026-04-26',
-    bedtime: '23:20',
-    wakeTime: '06:52',
-    readiness: 'Recovered reasonably well, but the short main sleep reduced reserve energy.',
-    improvement: 'Try moving bedtime 20 minutes earlier to create more room for deep sleep.',
-    heartRate: [63, 61, 59, 57, 56, 55, 56, 58],
-    breathingRate: [15.4, 15.1, 14.8, 14.5, 14.4, 14.5, 14.7, 15],
-    sessions: [
-      {
-        id: 'main-0426',
-        label: 'Main sleep',
-        type: 'main',
-        start: '23:20',
-        end: '06:52',
-        stages: [
-          { stage: 'light', minutes: 42 },
-          { stage: 'deep', minutes: 46 },
-          { stage: 'light', minutes: 82 },
-          { stage: 'rem', minutes: 34 },
-          { stage: 'awake', minutes: 12 },
-          { stage: 'light', minutes: 58 },
-          { stage: 'deep', minutes: 36 },
-          { stage: 'rem', minutes: 30 },
-          { stage: 'light', minutes: 62 },
-        ],
-      },
-      {
-        id: 'nap-0426',
-        label: 'Reset nap',
-        type: 'nap',
-        start: '15:10',
-        end: '15:32',
-        stages: [
-          { stage: 'light', minutes: 12 },
-          { stage: 'rem', minutes: 6 },
-          { stage: 'awake', minutes: 4 },
-        ],
-      },
-    ],
+    id: 2,
+    icon: '☀️',
+    category: 'Recovery',
+    title: 'Your nap timing is optimal',
+    body: 'A 32-min nap at 1:15 PM sits perfectly in your circadian dip. Keep it under 35 min to avoid grogginess and stay in Stage 2 (core) sleep.',
+    impact: 'medium',
+    tag: 'Naps',
   },
   {
-    date: '2026-04-25',
-    bedtime: '22:34',
-    wakeTime: '06:58',
-    readiness: 'Balanced recovery and healthy REM distribution supported attention today.',
-    improvement: 'Keep the same wind-down timing. It is improving consistency.',
-    heartRate: [61, 59, 57, 55, 54, 53, 54, 56],
-    breathingRate: [15.1, 14.8, 14.5, 14.2, 14.1, 14.1, 14.3, 14.6],
-    sessions: [
-      {
-        id: 'main-0425',
-        label: 'Main sleep',
-        type: 'main',
-        start: '22:34',
-        end: '06:58',
-        stages: [
-          { stage: 'light', minutes: 34 },
-          { stage: 'deep', minutes: 66 },
-          { stage: 'light', minutes: 52 },
-          { stage: 'rem', minutes: 38 },
-          { stage: 'light', minutes: 48 },
-          { stage: 'awake', minutes: 7 },
-          { stage: 'deep', minutes: 40 },
-          { stage: 'light', minutes: 70 },
-          { stage: 'rem', minutes: 44 },
-          { stage: 'light', minutes: 55 },
-        ],
-      },
-    ],
+    id: 3,
+    icon: '📵',
+    category: 'Sleep Hygiene',
+    title: 'Reduce screen exposure 1h before bed',
+    body: 'Blue light suppresses melatonin by up to 50%. Try enabling night mode or switching to a book at 9:45 PM — your data shows longer sleep latency on screen-heavy evenings.',
+    impact: 'high',
+    tag: 'Hygiene',
   },
   {
-    date: '2026-04-24',
-    bedtime: '23:06',
-    wakeTime: '07:18',
-    readiness: 'Long total sleep helped recovery, though fragmentation slightly lowered quality.',
-    improvement: 'Keep the nap under 30 minutes to avoid adding more awake time overnight.',
-    heartRate: [64, 62, 60, 58, 57, 56, 57, 59],
-    breathingRate: [15.5, 15.2, 14.9, 14.6, 14.5, 14.6, 14.9, 15.1],
-    sessions: [
-      {
-        id: 'main-0424',
-        label: 'Main sleep',
-        type: 'main',
-        start: '23:06',
-        end: '07:18',
-        stages: [
-          { stage: 'light', minutes: 40 },
-          { stage: 'deep', minutes: 52 },
-          { stage: 'light', minutes: 74 },
-          { stage: 'rem', minutes: 28 },
-          { stage: 'awake', minutes: 14 },
-          { stage: 'light', minutes: 62 },
-          { stage: 'deep', minutes: 35 },
-          { stage: 'light', minutes: 54 },
-          { stage: 'rem', minutes: 40 },
-          { stage: 'light', minutes: 53 },
-        ],
-      },
-      {
-        id: 'nap-0424',
-        label: 'Power nap',
-        type: 'nap',
-        start: '14:02',
-        end: '14:26',
-        stages: [
-          { stage: 'light', minutes: 16 },
-          { stage: 'rem', minutes: 5 },
-          { stage: 'awake', minutes: 3 },
-        ],
-      },
-    ],
+    id: 4,
+    icon: '🏃',
+    category: 'Exercise',
+    title: 'Morning workouts deepen your sleep',
+    body: 'On days with logged morning activity, your deep sleep averages 94 min vs. 71 min on inactive days. Even a 20-min walk helps.',
+    impact: 'medium',
+    tag: 'Activity',
   },
   {
-    date: '2026-04-23',
-    bedtime: '22:58',
-    wakeTime: '06:40',
-    readiness: 'Restorative deep sleep helped, but total duration landed below target.',
-    improvement: 'An extra 30 to 40 minutes of sleep would likely move your score into the high 80s.',
-    heartRate: [63, 61, 60, 58, 57, 56, 57, 59],
-    breathingRate: [15.3, 15, 14.8, 14.6, 14.4, 14.5, 14.7, 14.9],
-    sessions: [
-      {
-        id: 'main-0423',
-        label: 'Main sleep',
-        type: 'main',
-        start: '22:58',
-        end: '06:40',
-        stages: [
-          { stage: 'light', minutes: 38 },
-          { stage: 'deep', minutes: 60 },
-          { stage: 'light', minutes: 78 },
-          { stage: 'rem', minutes: 32 },
-          { stage: 'awake', minutes: 11 },
-          { stage: 'light', minutes: 66 },
-          { stage: 'deep', minutes: 34 },
-          { stage: 'rem', minutes: 28 },
-          { stage: 'light', minutes: 55 },
-        ],
-      },
-    ],
+    id: 5,
+    icon: '🌡️',
+    category: 'Environment',
+    title: 'Cool your room to 65–68 °F',
+    body: 'Core body temperature drops ~2 °F during deep sleep. A cooler room (18–20 °C) accelerates this drop and can extend deep sleep by 10–15%.',
+    impact: 'medium',
+    tag: 'Environment',
+  },
+]
+
+// ─── Sleep education cards ─────────────────────────────────────────────────────
+export const sleepFacts = [
+  {
+    id: 1,
+    title: 'Why Deep Sleep Matters',
+    body: 'Deep (N3) sleep is when your brain flushes waste via the glymphatic system and your body releases growth hormone. Adults need 13–23% of total sleep as deep.',
+    icon: '🧠',
+    color: '#4361ee',
   },
   {
-    date: '2026-04-22',
-    bedtime: '23:18',
-    wakeTime: '06:30',
-    readiness: 'Short duration and lighter final cycles may leave you less resilient this afternoon.',
-    improvement: 'A brief nap helps, but your biggest gain still comes from extending main sleep.',
-    heartRate: [65, 63, 61, 60, 58, 58, 59, 61],
-    breathingRate: [15.8, 15.4, 15.1, 14.9, 14.8, 14.8, 15, 15.2],
-    sessions: [
-      {
-        id: 'main-0422',
-        label: 'Main sleep',
-        type: 'main',
-        start: '23:18',
-        end: '06:30',
-        stages: [
-          { stage: 'light', minutes: 44 },
-          { stage: 'deep', minutes: 42 },
-          { stage: 'light', minutes: 88 },
-          { stage: 'rem', minutes: 30 },
-          { stage: 'awake', minutes: 15 },
-          { stage: 'light', minutes: 71 },
-          { stage: 'rem', minutes: 27 },
-          { stage: 'light', minutes: 48 },
-        ],
-      },
-      {
-        id: 'nap-0422',
-        label: 'Desk nap',
-        type: 'nap',
-        start: '16:12',
-        end: '16:38',
-        stages: [
-          { stage: 'light', minutes: 15 },
-          { stage: 'rem', minutes: 7 },
-          { stage: 'awake', minutes: 4 },
-        ],
-      },
-    ],
+    id: 2,
+    title: 'REM & Memory',
+    body: 'REM sleep consolidates emotional memories and fuels creativity. It dominates in the final 2 hours of sleep — cutting sleep short hits REM hardest.',
+    icon: '💭',
+    color: '#9b5de5',
   },
   {
-    date: '2026-04-21',
-    bedtime: '22:40',
-    wakeTime: '06:50',
-    readiness: 'Consistent timing gave you a stable baseline for recovery.',
-    improvement: 'Keep your evening routine stable and avoid training too late.',
-    heartRate: [62, 60, 58, 56, 55, 54, 55, 57],
-    breathingRate: [15.2, 14.9, 14.7, 14.4, 14.2, 14.3, 14.5, 14.7],
-    sessions: [
-      {
-        id: 'main-0421',
-        label: 'Main sleep',
-        type: 'main',
-        start: '22:40',
-        end: '06:50',
-        stages: [
-          { stage: 'light', minutes: 35 },
-          { stage: 'deep', minutes: 64 },
-          { stage: 'light', minutes: 58 },
-          { stage: 'rem', minutes: 35 },
-          { stage: 'awake', minutes: 8 },
-          { stage: 'light', minutes: 68 },
-          { stage: 'deep', minutes: 38 },
-          { stage: 'light', minutes: 60 },
-          { stage: 'rem', minutes: 42 },
-          { stage: 'light', minutes: 42 },
-        ],
-      },
-    ],
+    id: 3,
+    title: 'Naps & Recovery',
+    body: 'A 20–30 min nap between noon and 3 PM reduces cortisol, boosts alertness by 34%, and doesn\'t significantly affect nighttime sleep quality.',
+    icon: '😴',
+    color: '#4cc9f0',
+  },
+  {
+    id: 4,
+    title: 'Sleep Debt is Real',
+    body: 'Missing 2 hours nightly for 5 days equals one full night of no sleep. Naps can partially repay debt but full recovery nights are irreplaceable.',
+    icon: '📉',
+    color: '#ff6b6b',
   },
 ]
