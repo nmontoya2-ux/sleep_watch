@@ -1,55 +1,108 @@
-function formatDuration(min) {
-  const h = Math.floor(min / 60)
-  const m = min % 60
-  if (m === 0) return `${h}h`
-  return `${h}h ${m}m`
-}
+// Circular arc sleep score gauge rendered in SVG
+export default function SleepScore({ score = 84, size = 140 }) {
+  const cx = size / 2
+  const cy = size / 2
+  const r  = (size / 2) - 14
+  const stroke = 10
 
-function SleepScore({ data }) {
-  // Use a fixed scale (0–10h) so days are comparable
-  const SCALE_MAX = 600 // 10h in minutes
-  const ticks = [0, 2, 4, 6, 8, 10] // hours
+  // Arc spans 240° starting from 150° (bottom-left)
+  const startAngle = 150
+  const totalArc   = 240
+  const fillArc    = (score / 100) * totalArc
+
+  function polar(angleDeg, radius) {
+    const rad = ((angleDeg - 90) * Math.PI) / 180
+    return {
+      x: cx + radius * Math.cos(rad),
+      y: cy + radius * Math.sin(rad),
+    }
+  }
+
+  function describeArc(startDeg, endDeg, r) {
+    const s   = polar(startDeg, r)
+    const e   = polar(endDeg, r)
+    const lg  = endDeg - startDeg > 180 ? 1 : 0
+    return `M ${s.x} ${s.y} A ${r} ${r} 0 ${lg} 1 ${e.x} ${e.y}`
+  }
+
+  const endAngle = startAngle + fillArc
+
+  // Score → colour
+  const scoreColor =
+      score >= 85 ? '#4ade80' :
+          score >= 70 ? '#7c6ff7' :
+              score >= 55 ? '#fbbf24' : '#f87171'
+
+  const label =
+      score >= 85 ? 'Excellent' :
+          score >= 70 ? 'Good'      :
+              score >= 55 ? 'Fair'      : 'Poor'
 
   return (
-    <div className="sleep-graph">
-      <div className="sleep-graph-axis" aria-hidden="true">
-        {ticks.map((t) => (
-          <span key={t}>{t}h</span>
-        ))}
-      </div>
-
-      {data.map((item) => {
-        const mainPct = (Math.min(item.mainSleep, SCALE_MAX) / SCALE_MAX) * 100
-        const napPct = (Math.min(item.napMinutes, SCALE_MAX) / SCALE_MAX) * 100
-        return (
-          <div key={item.date} className="sleep-graph-row">
-            <div className="sleep-graph-day">
-              <strong>{item.label}</strong>
-              <span>{formatDuration(item.totalSleep)}</span>
-            </div>
-            <div className="sleep-graph-track">
-              <div
-                className="sleep-graph-bar sleep-graph-bar-main"
-                style={{ left: 0, width: `${mainPct}%` }}
-                title={`Main sleep: ${formatDuration(item.mainSleep)}`}
+      <div style={{ position: 'relative', width: size, height: size }}>
+        <svg width={size} height={size} style={{ overflow: 'visible' }}>
+          {/* Track */}
+          <path
+              d={describeArc(startAngle, startAngle + totalArc, r)}
+              fill="none"
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth={stroke}
+              strokeLinecap="round"
+          />
+          {/* Glow (blurred duplicate) */}
+          {score > 0 && (
+              <path
+                  d={describeArc(startAngle, endAngle, r)}
+                  fill="none"
+                  stroke={scoreColor}
+                  strokeWidth={stroke + 6}
+                  strokeLinecap="round"
+                  style={{ filter: 'blur(6px)', opacity: 0.35 }}
               />
-              {item.napMinutes > 0 && (
-                <div
-                  className="sleep-graph-bar sleep-graph-bar-nap"
-                  style={{
-                    left: `calc(${mainPct}% + 2px)`,
-                    width: `${napPct}%`,
-                  }}
-                  title={`Nap: ${formatDuration(item.napMinutes)}`}
-                />
-              )}
-            </div>
-            <div className="sleep-graph-score">{item.score}</div>
-          </div>
-        )
-      })}
-    </div>
+          )}
+          {/* Fill */}
+          {score > 0 && (
+              <path
+                  d={describeArc(startAngle, endAngle, r)}
+                  fill="none"
+                  stroke={scoreColor}
+                  strokeWidth={stroke}
+                  strokeLinecap="round"
+              />
+          )}
+          {/* Score number */}
+          <text
+              x={cx}
+              y={cy - 4}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              style={{
+                fontSize: size * 0.25,
+                fontWeight: 700,
+                fill: 'var(--text)',
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: '-0.04em',
+              }}
+          >
+            {score}
+          </text>
+          {/* Label */}
+          <text
+              x={cx}
+              y={cy + size * 0.14}
+              textAnchor="middle"
+              style={{
+                fontSize: size * 0.095,
+                fill: scoreColor,
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}
+          >
+            {label}
+          </text>
+        </svg>
+      </div>
   )
 }
-
-export default SleepScore
