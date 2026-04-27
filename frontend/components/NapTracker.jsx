@@ -6,7 +6,7 @@ function qualityFromScore(score) {
   return 'Needs work'
 }
 
-function ScoreRing({ score, label = 'Sleep score' }) {
+function NapTracker({ score, label = 'Sleep score' }) {
   const radius = 56
   const circumference = 2 * Math.PI * radius
   const dashOffset = circumference - (Math.max(0, Math.min(100, score)) / 100) * circumference
@@ -36,4 +36,4 @@ function ScoreRing({ score, label = 'Sleep score' }) {
   )
 }
 
-export default ScoreRing
+export default NapTracker

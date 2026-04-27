@@ -1,6 +1,6 @@
 import Hypnogram from '../components/Hypnogram.jsx'
 import AIInsights from '../components/AIInsights.jsx'
-import ScoreRing from '../components/ScoreRing.jsx'
+import NapTracker from '../components/NapTracker.jsx'
 import SleepCard from '../components/SleepCard.jsx'
 import {
   formatClock,
@@ -58,7 +58,7 @@ function Home({ today, stageTotals }) {
         </div>
 
         <div className="hero-score">
-          <ScoreRing score={sleepScore} label="Sleep score" />
+          <NapTracker score={sleepScore} label="Sleep score" />
         </div>
       </div>
 
