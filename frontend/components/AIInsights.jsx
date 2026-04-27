@@ -1,4 +1,4 @@
-function NapBadge({ minutes }) {
+function AIInsights({ minutes }) {
   if (!minutes) {
     return (
       <span className="tag">
@@ -15,4 +15,4 @@ function NapBadge({ minutes }) {
   )
 }
 
-export default NapBadge
+export default AIInsights

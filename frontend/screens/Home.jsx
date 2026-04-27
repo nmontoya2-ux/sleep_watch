@@ -1,5 +1,5 @@
 import Hypnogram from '../components/Hypnogram.jsx'
-import NapBadge from '../components/NapBadge.jsx'
+import AIInsights from '../components/AIInsights.jsx'
 import ScoreRing from '../components/ScoreRing.jsx'
 import SleepCard from '../components/SleepCard.jsx'
 import {
@@ -53,7 +53,7 @@ function Home({ today, stageTotals }) {
               <i style={{ color: stagePalette.awake }} />
               {formatMinutes(awakeMinutes)} awake
             </span>
-            <NapBadge minutes={napMinutes} />
+            <AIInsights minutes={napMinutes} />
           </div>
         </div>
 
