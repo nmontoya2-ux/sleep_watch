@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Home     from './screens/Home'
+import Home     from '../screens/Home'
 import Insights from './screens/Insights'
 import History  from './screens/History'
 import NavBar   from './components/NavBar'
