@@ -1,11 +1,11 @@
 const stageOrder = ['awake', 'light', 'deep', 'rem']
 
 export const stagePalette = {
-  awake: '#f29b6c',
-  light: '#8aa4ff',
-  deep: '#26408b',
-  rem: '#5ec6b3',
-  nap: '#d8deec',
+  awake: '#f59e0b',
+  light: '#6b8afd',
+  deep: '#1e3a8a',
+  rem: '#14b8a6',
+  nap: '#c5d2ff',
 }
 
 export function getTodayData(days) {
