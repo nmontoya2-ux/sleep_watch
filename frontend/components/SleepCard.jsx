@@ -1,9 +1,12 @@
-function SleepCard({ title, value, detail, tone = 'default' }) {
+function SleepCard({ title, value, detail, color }) {
   return (
-    <article className={`sleep-card sleep-card-${tone}`}>
-      <p>{title}</p>
-      <strong>{value}</strong>
-      <span>{detail}</span>
+    <article className="metric-card">
+      <p className="metric-card-label">
+        {color && <i style={{ background: color }} />}
+        {title}
+      </p>
+      <div className="metric-card-value">{value}</div>
+      {detail && <div className="metric-card-detail">{detail}</div>}
     </article>
   )
 }
